@@ -5,8 +5,7 @@ const snake_border = "#246d9e";
 const food_color = "#bbff96";
 const food_border = "#44783d";
 
-let game_ended = false;
-
+let game_active = false;
 
 let snake = [
   { x: 200, y: 200 },
@@ -17,30 +16,37 @@ let snake = [
 ];
 
 let score = 0;
-// True if changing direction
 let changing_direction = false;
-// Horizontal velocity
 let food_x;
 let food_y;
+// Speed
 let dx = 10;
-// Vertical velocity
 let dy = 0;
 
 const snakeboard = document.getElementById("snakeboard");
 const snakeboard_ctx = snakeboard.getContext("2d");
-main();
 gen_food();
+main();
+document.addEventListener("keydown", handle_keyPress);
 
-document.addEventListener("keydown", change_direction);
 
 function main() {
+  if (!game_active) {
+    document.getElementById("score").innerHTML = "Press any key to start";
+    clear_board();
+    drawFood();
+    drawSnake();
+    return;
+  }
   if (has_game_ended()) {
     snakeboard_ctx.strokeStyle = '#ff3f2e';
     snakeboard_ctx.strokeRect(0, 0, snakeboard.width, snakeboard.height);
+    document.getElementById("score").innerHTML = "Game Over!<br>Score: " + score;
+    
     return;
   }
-
   changing_direction = false;
+  
   setTimeout(function onTick() {
     clear_board();
     drawFood();
@@ -48,6 +54,8 @@ function main() {
     drawSnake();
     main();
   }, 100);
+
+  
 }
 function drawRectWithBorder(x, y, width, height, color, border) {
   snakeboard_ctx.fillStyle = color;
@@ -100,7 +108,13 @@ function gen_food() {
   });
 }
 
-function change_direction(event) {
+function handle_keyPress(event) {
+  if(!game_active) {
+    game_active = true;
+    main();
+  }
+
+
   const LEFT_KEY = 37;
   const RIGHT_KEY = 39;
   const UP_KEY = 38;
