@@ -5,7 +5,6 @@ const snake_border = "#246d9e";
 const food_color = "#bbff96";
 const food_border = "#44783d";
 
-let game_active = false;
 
 let snake = [
   { x: 200, y: 200 },
@@ -16,28 +15,27 @@ let snake = [
 ];
 
 let score = 0;
+let game_active = false;
 let changing_direction = false;
 let food_x;
 let food_y;
-// Speed
-let dx = 10;
+
+// Snake direction
+const speed = 10;
+let dx = speed;
 let dy = 0;
+
 
 const snakeboard = document.getElementById("snakeboard");
 const snakeboard_ctx = snakeboard.getContext("2d");
+clear_board();
 gen_food();
-main();
+drawFood();
+drawSnake();
 document.addEventListener("keydown", handle_keyPress);
 
 
 function main() {
-  if (!game_active) {
-    document.getElementById("score").innerHTML = "Press any key to start";
-    clear_board();
-    drawFood();
-    drawSnake();
-    return;
-  }
   if (has_game_ended()) {
     snakeboard_ctx.strokeStyle = '#ff3f2e';
     snakeboard_ctx.strokeRect(0, 0, snakeboard.width, snakeboard.height);
@@ -111,9 +109,9 @@ function gen_food() {
 function handle_keyPress(event) {
   if(!game_active) {
     game_active = true;
+    document.getElementById("score").innerHTML = score;
     main();
   }
-
 
   const LEFT_KEY = 37;
   const RIGHT_KEY = 39;
@@ -124,48 +122,47 @@ function handle_keyPress(event) {
   const S_KEY = 83;
   const D_KEY = 68;
 
-  // Prevent the snake from reversing
-
   if (changing_direction) return;
   changing_direction = true;
+
   const keyPressed = event.keyCode;
   const goingUp = dy === -10;
   const goingDown = dy === 10;
   const goingRight = dx === 10;
   const goingLeft = dx === -10;
   if (keyPressed === (A_KEY || LEFT_KEY) && !goingRight) {
-    dx = -10;
+    dx = -speed
     dy = 0;
   }
   if (keyPressed === (W_KEY || UP_KEY) && !goingDown) {
     dx = 0;
-    dy = -10;
+    dy = -speed;
   }
   if (keyPressed === (D_KEY || RIGHT_KEY) && !goingLeft) {
-    dx = 10;
+    dx = speed;
     dy = 0;
   }
   if (keyPressed === (S_KEY || DOWN_KEY) && !goingUp) {
     dx = 0;
-    dy = 10;
+    dy = speed;
   }
 }
 
 function move_snake() {
-  // Create the new Snake's head
   const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-  // Add the new head to the beginning of snake body
+
+  // Allow looping through walls
+  if (head.x < 0) head.x = snakeboard.width - 10;
+  if (head.x > snakeboard.width - 10) head.x = 0;
+  if (head.y < 0) head.y = snakeboard.height - 10;
+  if (head.y > snakeboard.height - 10) head.y = 0;
+
   snake.unshift(head);
-  const has_eaten_food = snake[0].x === food_x && snake[0].y === food_y;
-  if (has_eaten_food) {
-    // Increase score
+  if (snake[0].x === food_x && snake[0].y === food_y) {
     score += 1;
-    // Display score on screen
     document.getElementById("score").innerHTML = score;
-    // Generate new food location
     gen_food();
   } else {
-    // Remove the last part of snake body
     snake.pop();
   }
 }
