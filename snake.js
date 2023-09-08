@@ -1,10 +1,9 @@
-/** Javascript Snake game */
+document.addEventListener("DOMContentLoaded", function () {
+    pTag = document.querySelector("div");
+    newVal = document.createElement("p");
+    newVal.innerHTML = '';
+    pTag.appendChild(newVal);
+  });
+  
 
-class Snake {
-    constructor() {
-        this.x = 0;
-        this.y = 0;
-        this.speed = 1;
-        this.tail = [];
-    }
-}
+  
