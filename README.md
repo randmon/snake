@@ -1,1 +1,5 @@
 # Snake
+
+## TODO
+
+- [ ] Project planning
