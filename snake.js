@@ -37,8 +37,17 @@ document.addEventListener("keydown", handle_keyPress);
 
 function main() {
   if (has_game_ended()) {
+    // Add red border to snakeboard
     snakeboard_ctx.strokeStyle = '#ff3f2e';
     snakeboard_ctx.strokeRect(0, 0, snakeboard.width, snakeboard.height);
+
+    // Draw red square where snake died
+    snakeboard_ctx.fillStyle = '#ff3f2e';
+    snakeboard_ctx.fillRect(snake[0].x, snake[0].y, 10, 10);
+    snakeboard_ctx.strokeStyle = '#b01e3e';
+    snakeboard_ctx.strokeRect(snake[0].x, snake[0].y, 10, 10);
+
+
     document.getElementById("score").innerHTML = "Game Over!<br>Score: " + score;
     
     return;
