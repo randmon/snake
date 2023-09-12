@@ -37,13 +37,16 @@ gen_food();
 drawFood();
 drawSnake();
 document.addEventListener("keydown", handle_keyPress);
+document.getElementById("restart").addEventListener("click", () => {
+  game_restart();
+});
 
 
 function main() {
+  if (game_state === GAME_STATES.START) return;
   if (has_game_ended()) {
     game_over();
-    return;
-  } else if(game_state === GAME_STATES.START) {
+    document.getElementById("restart").setAttribute("style", "display: inline-block;");
     return;
   }
 
@@ -106,9 +109,6 @@ function handle_keyPress(event) {
     game_state = GAME_STATES.PLAYING;
     document.getElementById("score").innerHTML = score;
     main();
-  } else if(game_state === GAME_STATES.GAME_OVER) {
-    game_state = GAME_STATES.START;
-    game_restart();
   } else {
 
     const LEFT_KEY = 37;
@@ -148,6 +148,7 @@ function handle_keyPress(event) {
 }
 
 function game_restart() {
+  game_state = GAME_STATES.START;
   snake = [...START_SNAKE];
   score = 0;
   dx = SPEED;
@@ -157,6 +158,7 @@ function game_restart() {
   drawFood();
   drawSnake();
   document.getElementById("score").innerHTML = "Press any key to start";
+  document.getElementById("restart").setAttribute("style", "display: none;");
 }
 
 function game_over() {
@@ -172,7 +174,7 @@ function game_over() {
   snakeboard_ctx.strokeStyle = '#b01e3e';
   snakeboard_ctx.strokeRect(snake[0].x, snake[0].y, 10, 10);
 
-  document.getElementById("score").innerHTML = "Game Over! Score: " + score + "<br>Press any key to restart";
+  document.getElementById("score").innerHTML = "Game Over! Score: " + score;
 }
 
 
