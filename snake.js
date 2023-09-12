@@ -1,26 +1,34 @@
+import level0 from './levels/level0.json' assert { type: "json" };
+import level1 from './levels/level1.json' assert { type: "json" };
+import level2 from './levels/level2.json' assert { type: "json" };
+
+const LEVELS = [level0, level1, level2];
+
+// Read file for Start snake, if there is no file then use default
+
+
 const board_color = "#404448";
 const board_border = "#000000";
+const wall_color = "#ffffff";
+const wall_border = "#a0a0a0";
 const snake_color = "#49daf0";
 const snake_border = "#246d9e";
 const food_color = "#bbff96";
 const food_border = "#44783d";
 
-const START_SNAKE = [
-  { x: 200, y: 200 },
-  { x: 190, y: 200 },
-  { x: 180, y: 200 },
-  { x: 170, y: 200 }
-];
-
-let snake = [...START_SNAKE];
+let start_snake;
+let snake;
+let walls;
+let current_level;
 let score = 0;
 let highscore = 0;
 const GAME_STATES = {
-  START: 0,
-  PLAYING: 1,
-  GAME_OVER: 2,
+  LEVEL_SELECT: 0,
+  START: 1,
+  PLAYING: 2,
+  GAME_OVER: 3
 }
-let game_state = GAME_STATES.START;
+let game_state = GAME_STATES.LEVEL_SELECT;
 let changing_direction = false;
 let food_x;
 let food_y;
@@ -33,27 +41,55 @@ let dy = 0;
 
 const snakeboard = document.getElementById("snakeboard");
 const snakeboard_ctx = snakeboard.getContext("2d");
-clear_board();
-gen_food();
-drawFood();
-drawSnake();
-document.addEventListener("keydown", handle_keyPress);
 const restart_button = document.getElementById("restart");
-restart_button.addEventListener("click", game_restart);
+const score_element = document.getElementById("score");
+const level_select_element = document.getElementById("level_select");
+const highscore_element = document.getElementById("highscore");
+const change_level_button = document.getElementById("change_level");
+const restart_section_element = document.getElementById("restart_section");
 
+restart_button.addEventListener("click", game_restart);
+change_level_button.addEventListener("click", level_select_menu);
+document.addEventListener("keydown", handle_keyPress);
+document.getElementById("level0").addEventListener("click", () => start_level(0));
+document.getElementById("level1").addEventListener("click", () => start_level(1));
+document.getElementById("level2").addEventListener("click", () => start_level(2));
+
+function level_select_menu() {
+  game_state = GAME_STATES.LEVEL_SELECT;
+  snakeboard.setAttribute("style", "display: none;");
+  score_element.setAttribute("style", "display: none;");
+  level_select_element.setAttribute("style", "display: block;");
+  restart_section_element.setAttribute("style", "display: none;");
+}
+
+function start_level(level) {
+  current_level = LEVELS[level];
+  start_snake = current_level?.snake || [
+    { x: 200, y: 200 }, 
+    { x: 190, y: 200 }, 
+    { x: 180, y: 200 }, 
+    { x: 170, y: 200 }
+  ];
+  snake = [...start_snake];
+  walls = current_level?.walls || [];
+  level_select_element.setAttribute("style", "display: none;");
+  score_element.setAttribute("style", "display: block;");
+  game_restart();
+}
 
 function main() {
   if (game_state === GAME_STATES.START) return;
   if (has_game_ended()) {
     game_over();
-    document.getElementById("restart").setAttribute("style", "display: inline-block;");
+    restart_button.setAttribute("style", "display: inline-block;");
     return;
   }
 
   changing_direction = false;
   
   setTimeout(function onTick() {
-    clear_board();
+    draw_board();
     drawFood();
     move_snake();
     drawSnake();
@@ -68,8 +104,19 @@ function drawRectWithBorder(x, y, width, height, color, border) {
   snakeboard_ctx.strokeRect(x, y, width, height);
 }
 
-function clear_board() {
+function draw_board() {
+  // Draw board
   drawRectWithBorder(0, 0, snakeboard.width, snakeboard.height, board_color, board_border);
+  // Draw walls
+  walls.forEach((wall) => {
+    // A wall is an object with x, y, width, height
+    // Draw a square for each 10x10 pixel block
+    for (let i = 0; i < wall.width; i += 10) {
+      for (let j = 0; j < wall.height; j += 10) {
+        drawRectWithBorder(wall.x + i, wall.y + j, 10, 10, wall_color, wall_border);
+      }
+    }
+  });
 }
 
 function drawSnake() {
@@ -90,6 +137,13 @@ function has_game_ended() {
   for (let i = 4; i < snake.length; i++) {
     if (snake[i].x === snake[0].x && snake[i].y === snake[0].y) return true;
   }
+
+  // Snake hits wall
+  for (let i = 0; i < walls.length; i++) {
+    if (snake[0].x >= walls[i].x && snake[0].x < walls[i].x + walls[i].width &&
+        snake[0].y >= walls[i].y && snake[0].y < walls[i].y + walls[i].height) return true;
+  }
+
   return false;
 }
 
@@ -100,14 +154,18 @@ function random_food(min, max) {
 function gen_food() {
   food_x = random_food(0, snakeboard.width - 10);
   food_y = random_food(0, snakeboard.height - 10);
-  // if the new food location is where the snake currently is, generate a new food location
-  if (snake.some(part => part.x === food_x && part.y === food_y)) gen_food();
+  // cannot be on snake or wall
+  if (snake.some(part => part.x === food_x && part.y === food_y) ||
+      walls.some(wall => food_x >= wall.x && food_x < wall.x + wall.width &&
+                          food_y >= wall.y && food_y < wall.y + wall.height)) {
+    gen_food();
+  }
 }
 
 function handle_keyPress(event) {
   if(game_state === GAME_STATES.START) {
     game_state = GAME_STATES.PLAYING;
-    document.getElementById("score").innerHTML = score;
+    score_element.innerHTML = score;
     main();
   } else {
 
@@ -149,16 +207,17 @@ function handle_keyPress(event) {
 
 function game_restart() {
   game_state = GAME_STATES.START;
-  snake = [...START_SNAKE];
+  snakeboard.setAttribute("style", "display: inline-block;");
+  snake = [...start_snake];
   score = 0;
   dx = SPEED;
   dy = 0;
-  clear_board();
+  draw_board();
   gen_food();
   drawFood();
   drawSnake();
-  document.getElementById("score").innerHTML = "Press any key to start";
-  document.getElementById("restart").setAttribute("style", "display: none;");
+  score_element.innerHTML = "Press any key to start";
+  restart_section_element.setAttribute("style", "display: none;");
 }
 
 function game_over() {
@@ -176,19 +235,22 @@ function game_over() {
   snakeboard_ctx.strokeStyle = '#b01e3e';
   snakeboard_ctx.strokeRect(snake[0].x, snake[0].y, 10, 10);
 
-  document.getElementById("score").innerHTML = "Game Over! Score: " + score;
+  score_element.innerHTML = "Game Over! Score: " + score;
 
   if (score > highscore) {
     highscore = score;
     document.getElementById("highscore").innerHTML = "Highscore: " + highscore;
   }
+
+  // Show restart button
+  restart_section_element.setAttribute("style", "display: block;");
 }
 
 
 function move_snake() {
   const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-  // Allow looping through walls
+  // Allow looping through edges
   if (head.x < 0) head.x = snakeboard.width - 10;
   if (head.x > snakeboard.width - 10) head.x = 0;
   if (head.y < 0) head.y = snakeboard.height - 10;
@@ -197,7 +259,7 @@ function move_snake() {
   snake.unshift(head);
   if (snake[0].x === food_x && snake[0].y === food_y) {
     score += 1;
-    document.getElementById("score").innerHTML = score;
+    score_element.innerHTML = score;
     gen_food();
   } else {
     snake.pop();

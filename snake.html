@@ -4,10 +4,22 @@
     <title>🐍</title>
 </head>
 <body>
-    <p id="score">Press any key to start!</p>
-    <canvas id="snakeboard" width="500" height="500"></canvas>
+    <p>🐍</p>
+    <p id="score" style="display: none;">Press any key to start!</p>
+    <canvas id="snakeboard" width="500" height="500" style="display: none;"></canvas>
+    
+    <div id="level_select">
+        <p>Choose level:</p>
+
+        <button id="level0">0</button>
+        <button id="level1">1</button>
+        <button id="level2">2</button>
+    </div>
     <p id="highscore">Highscore: 0</p>
-    <p><button id="restart" style="display: none;">Restart</button></p>
+    <div id="restart_section" style="display: none;">
+        <button id="restart">Restart</button>
+        <button id="change_level">Change level</button>
+    </div>
     <style>
         body {
             background-color: #323335;
@@ -16,15 +28,13 @@
             font-family: monospace;
             text-align: center;
         }
-        #snakeboard {
-            /* border: 10px solid #fff; */
-        }
 
         p {
             font-size: 50px;
             color: #fff;
             margin: 20px;
         }
+
         button {
             background-color: #fff;
             border: none;
@@ -36,5 +46,5 @@
         }
     </style>
 </body>
-<script src="snake.js"></script>
+<script type="module" src="snake.js"></script>
 </html>
