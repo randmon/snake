@@ -38,9 +38,8 @@ gen_food();
 drawFood();
 drawSnake();
 document.addEventListener("keydown", handle_keyPress);
-document.getElementById("restart").addEventListener("click", () => {
-  game_restart();
-});
+const restart_button = document.getElementById("restart");
+restart_button.addEventListener("click", game_restart);
 
 
 function main() {
@@ -167,7 +166,9 @@ function game_over() {
 
   // Add red border to snakeboard
   snakeboard_ctx.strokeStyle = '#ff3f2e';
+  snakeboard_ctx.lineWidth = 3;
   snakeboard_ctx.strokeRect(0, 0, snakeboard.width, snakeboard.height);
+  snakeboard_ctx.lineWidth = 1;
 
   // Draw red square where snake died
   snakeboard_ctx.fillStyle = '#ff3f2e';
