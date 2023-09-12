@@ -14,6 +14,7 @@ const START_SNAKE = [
 
 let snake = [...START_SNAKE];
 let score = 0;
+let highscore = 0;
 const GAME_STATES = {
   START: 0,
   PLAYING: 1,
@@ -175,6 +176,11 @@ function game_over() {
   snakeboard_ctx.strokeRect(snake[0].x, snake[0].y, 10, 10);
 
   document.getElementById("score").innerHTML = "Game Over! Score: " + score;
+
+  if (score > highscore) {
+    highscore = score;
+    document.getElementById("highscore").innerHTML = "Highscore: " + highscore;
+  }
 }
 
 

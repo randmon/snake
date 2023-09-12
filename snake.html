@@ -5,8 +5,9 @@
 </head>
 <body>
     <p id="score">Press any key to start!</p>
-    <p><button id="restart" style="display: none;">Restart</button></p>
+    <p id="highscore">Highscore: 0</p>
     <canvas id="snakeboard" width="500" height="500"></canvas>
+    <p><button id="restart" style="display: none;">Restart</button></p>
     <style>
         body {
             background-color: #323335;
@@ -16,10 +17,6 @@
             text-align: center;
         }
         #snakeboard {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
         }
 
         p {
