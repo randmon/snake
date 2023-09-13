@@ -1,11 +1,8 @@
-import level0 from './levels/level0.json' assert { type: "json" };
-import level1 from './levels/level1.json' assert { type: "json" };
-import level2 from './levels/level2.json' assert { type: "json" };
+import level0 from '../data/levels/level0.json' assert { type: "json" };
+import level1 from '../data/levels/level1.json' assert { type: "json" };
+import level2 from '../data/levels/level2.json' assert { type: "json" };
 
 const LEVELS = [level0, level1, level2];
-
-// Read file for Start snake, if there is no file then use default
-
 
 const board_color = "#404448";
 const board_border = "#000000";
